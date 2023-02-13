@@ -1,0 +1,369 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block css %}
+
+{% endblock %}
+{% block content %}
+    <div id="people_content" style="position: fixed;top: 180px;text-align: center;">
+        <div class="layui-form layui-form-pane">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">部门</label>
+                    <div class="layui-input-inline">
+                        <select name="modules" lay-verify="required" lay-search="" id="s-department">
+                            <option value="">直接选择或搜索选择</option>
+                            <option value="销售部">销售部</option>
+                            <option value="流量中心">流量中心</option>
+                            <option value="技术中心">技术中心</option>
+                            <option value="在线部">在线部</option>
+                            <option value="教务部">教务部</option>
+                            <option value="薪酬部">薪酬部</option>
+                            <option value="财务部">财务部</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">登录权限</label>
+                    <div class="layui-input-inline">
+                        <select name="modules" lay-verify="required" lay-search="" id="s-login">
+                            <option value="">直接选择或搜索选择</option>
+                            <option value="true">true</option>
+                            <option value="false">false</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">功能权限</label>
+                    <div class="layui-input-inline">
+                        <select name="modules" lay-verify="required" lay-search="" id="s-power">
+                            <option value="">直接选择或搜索选择</option>
+                            <option value="上传">上传</option>
+                            <option value="导出">导出</option>
+                            <option value="用户权限管理">用户权限管理</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" autocomplete="off" class="layui-input" placeholder="支持模糊搜索" id="s-username"/>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">真实姓名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" autocomplete="off" class="layui-input" placeholder="支持模糊搜索" id="s-name"/>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn" id="select_people">查询</button>
+                    <button class="layui-btn layui-btn-normal" id="reset_people">重置</button>
+                </div>
+            </div>
+        </div>
+        <table class="layui-hide" id="test" lay-filter="test"></table>
+        <script type="text/html" id="barDemo">
+            <a class="layui-btn layui-btn-xs" lay-event="editLogin">登录权限</a>
+            <a class="layui-btn layui-btn-xs" lay-event="editPower">功能权限</a>
+            <a class="layui-btn layui-btn-xs" lay-event="editPw">重置密码</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+        </script>
+    </div>
+    <div id="content_iframe" class="layui-hide"
+         style="position: fixed;right: 0;height: 100%;width: 400px;background: rgba(192,196,204,0.95);">
+        <span style="position: absolute;left: 10%;top:0;font-size: 25px;">用户权限管理配置</span>
+        <button type="button" class="layui-btn layui-btn-sm" lay-demo="close" style="position: absolute;right: 0;top:0">
+            X
+        </button>
+        <div style="position: absolute;top: 20%;left: 10%">
+            <div><span id="power_id"></span>所拥有的权限:</div>
+            <div id="test12" class="demo-tree-more"></div>
+            <br/><br/><br/><br/><br/>
+            <div class="layui-btn-container">
+                {#                <button type="button" class="layui-btn layui-btn-sm" lay-demo="getChecked">获取选中节点数据</button>#}
+                <button type="button" class="layui-btn layui-btn-sm" lay-demo="getChecked">确认</button>
+                <button type="button" class="layui-btn layui-btn-sm" lay-demo="close">取消</button>
+                {#                <button type="button" class="layui-btn layui-btn-sm" lay-demo="setChecked">勾选指定节点</button>#}
+                {#                <button type="button" class="layui-btn layui-btn-sm" lay-demo="reload">重载实例</button>#}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block js %}
+    <script>
+        //权限管理
+        var layer = layui.layer, table = layui.table, tree = layui.tree, util = layui.util;
+        //模拟数据
+
+        $.ajax({
+            url: '/power/',
+            type: "get",
+            async: false,
+            success: function (res) {
+                {#var res = JSON.parse(res);#}
+
+                data = res['res'];
+                {#console.log(data);#}
+            },
+            error: function () {
+                console.log('power get error;');
+                data = [
+                    {
+                        'title': '权限管理'
+                        , 'id': 0
+                        , 'spread': true
+                        , 'children': [
+                            {
+                                title: '上传'
+                                , id: 2
+                            }
+                            , {
+                                title: '导出'
+                                , id: 3
+                                , spread: true
+                                , children: [
+                                    {
+                                        title: '自考流量成本'
+                                        , id: 4
+                                    }, {
+                                        title: '中教流量成本'
+                                        , id: 5
+                                    }, {
+                                        title: '自考流水表'
+                                        , id: 6
+                                    }, {
+                                        title: '中教流水表'
+                                        , id: 7
+                                    }]
+                            }
+                            , {
+                                title: '用户权限管理'
+                                , id: 1
+                            }]
+                    }
+                ];
+            }
+        })
+
+
+        //基本演示
+        tree.render({
+            elem: '#test12'
+            , data: data
+            , showCheckbox: true  //是否显示复选框
+            , id: 'demoId1'
+            , showLine: true
+        });
+
+        //按钮事件
+        util.event('lay-demo', {
+            getChecked: function (othis) {
+                var checkedData = tree.getChecked('demoId1'); //获取选中节点的数据
+                var power_id = $('#power_id').html().split(':')[1];
+                var formData = {
+                    'power_res': JSON.stringify(checkedData),
+                    'power_id': power_id,
+                };
+                var url = "/power/";
+                $.ajax({
+                    url: url,
+                    type: "PUT",
+                    async: false,
+                    data: formData,
+                    success: function (res) {
+                        {#var res = JSON.parse(res);#}
+                        var formData = {
+                            'department': $('#s-department').val(),
+                            'login': $('#s-login').val(),
+                            'username': $('#s-username').val(),
+                            'name': $('#s-name').val(),
+                            'power': $('#s-power').val(),
+                        };
+                        table.reload('test', {where: formData});
+                        $('#content_iframe').addClass('layui-hide');
+                        tree.reload('demoId1', {});
+                    }
+                })
+                {#layer.alert(JSON.stringify(checkedData), {shade: 0});#}
+                {#console.log(checkedData);#}
+            }
+            , setChecked: function () {
+                tree.setChecked('demoId1', [1]); //勾选指定节点
+            }
+            , reload: function () {
+                //重载实例
+                tree.reload('demoId1', {});
+
+            }
+            , close: function () {
+                $('#content_iframe').addClass('layui-hide');
+                tree.reload('demoId1', {});
+
+            }
+        });
+
+        table.render({
+            elem: '#test'
+            , url: '/user/list/'
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: ['filter', 'exports', 'print']
+            , title: '用户数据表'
+            , cols: [[
+                {field: 'id', title: 'ID', width: 80, fixed: 'left', unresize: true, sort: true}
+                , {field: 'username', title: '用户名', width: 120}
+                , {field: 'department_name', title: '部门', width: 150}
+                , {field: 'real_name', title: '真实姓名', width: 120}
+                , {field: 'is_staff', title: '登录权限', width: 100}
+                , {field: 'power_list', title: '功能权限', width: 470}
+                , {field: 'date_joined', title: '加入时间', width: 250}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 400}
+            ]]
+            , page: true
+            , limit: 10
+            , where: {
+                'department': $('#s-department').val(),
+                'login': $('#s-login').val(),
+                'username': $('#s-username').val(),
+                'name': $('#s-name').val(),
+                'power': $('#s-power').val(),
+            }
+
+        });
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除这个账户吗', function (index) {
+                    var formData = {
+                        'id': data.id,
+                    };
+                    var url = "/user/del/";
+                    $.ajax({
+                        url: url,
+                        type: "GET",
+                        async: false,
+                        data: formData,
+                        success: function (res) {
+
+                        }
+                    })
+                    obj.del();
+                    layer.close(index);
+                });
+            } else if (obj.event === 'editLogin') {
+                var formData = {
+                    'id': data.id
+                };
+                if (data.is_staff == 'true') {
+                    var url = "/user/nopower/";
+                    var value = "false";
+                    var color = "color: red;";
+                } else {
+                    var url = "/user/empower/";
+                    var value = "true";
+                    var color = "color: green;";
+                }
+                $.ajax({
+                    url: url,
+                    type: "GET",
+                    async: false,
+                    data: formData,
+                    success: function (res) {
+                        $(obj['tr'][0]['children'][4]).attr('style',color);
+                    }
+                })
+                obj.update({
+                    is_staff: value
+                });
+            } else if (obj.event === 'editPower') {
+                $('#content_iframe').removeClass('layui-hide');
+                var url = "/power/";
+                formData = {
+                    powerList: data.power_list
+                }
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    async: false,
+                    data: formData,
+                    success: function (res) {
+                        var res = JSON.parse(res);
+                        var power_id = res['power_id'];
+                        tree.setChecked('demoId1', power_id);
+                        $('#power_id').html('ID:' + data.id)
+                    }
+                })
+
+                {#obj.update({#}
+                {#    power_list: power_list#}
+                {# }); #}
+                {#layer.prompt(#}
+                {#    {#}
+                {#        formType: 2#}
+                {#        , value: data.power_list#}
+                {#    }, function (value, index) {#}
+                {#        var formData = {#}
+                {#            'id': data.id,#}
+                {#            'power': value#}
+                {#        };#}
+                {#        var url = "/user/power/";#}
+                {#        $.ajax({#}
+                {#            url: url,#}
+                {#            type: "GET",#}
+                {#            async: false,#}
+                {#            data: formData,#}
+                {#            success: function (res) {#}
+                {##}
+                {#            }#}
+                {#        })#}
+                {#        obj.update({#}
+                {#            power_list: value#}
+                {#        });#}
+                {#        layer.close(index);#}
+                {#    });#}
+            } else if (obj.event === 'editPw') {
+                layer.prompt({
+                    formType: 2
+                    , value: data.username
+                }, function (value, index) {
+                    var formData = {
+                        'id': data.id,
+                        'pw': value
+                    };
+                    var url = "/user/pw/";
+                    $.ajax({
+                        url: url,
+                        type: "GET",
+                        async: false,
+                        data: formData,
+                        success: function (res) {
+
+                        }
+                    })
+                    layer.close(index);
+                });
+
+            }
+        });
+        {#$('#top_logo').html('用户权限管理');#}
+        $('#empower').addClass('layui-this');
+        $('#select_people').click(
+            function () {
+                var formData = {
+                    'department': $('#s-department').val(),
+                    'login': $('#s-login').val(),
+                    'username': $('#s-username').val(),
+                    'name': $('#s-name').val(),
+                    'power': $('#s-power').val(),
+                };
+                table.reload('test', {where: formData});
+            }
+        );
+        $('#reset_people').click(
+            function () {
+                history.go(0);
+            }
+        );
+
+
+    </script>
+{% endblock %}

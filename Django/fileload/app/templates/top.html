@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block css %}
+{% endblock css %}
+{% block content %}
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
+        <legend>版本更新记录</legend>
+    </fieldset>
+    <ul class="layui-timeline">
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <h3 class="layui-timeline-title">2023年2月6日</h3>
+                <span>1.【参数配置】功能：</span>
+                <ul>
+                    <li>增加广点通的回传参数配置</li>
+                </ul>
+            </div>
+        </li>
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <h3 class="layui-timeline-title">2022年12月16日</h3>
+                <span>1.【用户管理】功能：</span>
+                <ul>
+                    <li>优化用户的授权方式</li>
+                    <li>增加权限的筛选查询</li>
+                </ul>
+                <span>2.【文件上传】功能：</span>
+                <ul>
+                    <li>B站消费的文件字段更新</li>
+                </ul>
+            </div>
+        </li>
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <h3 class="layui-timeline-title">2022年12月12日</h3>
+                <span>1.【用户管理】功能：</span>
+                <ul>
+                    <li>增加部门和登录权限的筛选查询</li>
+                    <li>增加用户名和姓名的模糊查询</li>
+                </ul>
+
+            </div>
+        </li>
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <h3 class="layui-timeline-title">2022年12月07日</h3>
+                <span>1.【文件上传】功能：</span>
+                <ul>
+                    <li>因页面文件过多时展示不全，增加滚动条</li>
+                </ul>
+            </div>
+        </li>
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <h3 class="layui-timeline-title">2022年12月06日</h3>
+                <span>1.【文件上传】功能：</span>
+                <ul>
+                    <li>文件命名无需按指定命名格式命名，原文件格式即可</li>
+                    <li>增加勾选批量上传</li>
+                    <li>增加上传进度状态</li>
+                    <li>增加上传结果说明</li>
+                </ul>
+                <span>2.【文件导出】功能：</span>
+                <ul>
+                    <li>增加查询中的提示</li>
+                    <li>增加查询结果的显示</li>
+                </ul>
+            </div>
+        </li>
+        <li class="layui-timeline-item">
+            <i class="layui-icon layui-timeline-axis"></i>
+            <div class="layui-timeline-content layui-text">
+                <div class="layui-timeline-title">无</div>
+            </div>
+        </li>
+    </ul>
+
+{% endblock content %}
+{% block js %}
+{% endblock js %}

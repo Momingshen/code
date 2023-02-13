@@ -1,0 +1,20 @@
+syntax = "proto3";
+message SearchParams {
+  enum SearchFilter {
+    a = 0;
+  }
+  message Params {
+    string searchType = 1;
+    string searchWord = 2;
+    int32 currentPage = 3;
+    int32 pageSize = 4;
+    repeated SearchFilter searchFilter = 6;
+  }
+  enum Params1 {
+    b = 0;
+  }
+  message SearchRequest {
+    Params params = 1;
+    Params1 params1 = 2;
+  }
+}

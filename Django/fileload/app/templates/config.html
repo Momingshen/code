@@ -1,0 +1,183 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block css %}
+    .inputclass {
+    padding: 8px 0px;
+    width: 400px;
+    }
+{% endblock css %}
+{% block content %}
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                {% if "配置" in request.session.power %}
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;">渠道</a>
+                        <dl class="layui-nav-child">
+                            {% if "腾讯广点通" in request.session.power %}
+                                <dd><a href="/config/?k=腾讯广点通">腾讯广点通</a></dd>
+                            {% endif %}
+                        </dl>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="center_div">
+        <div class="layui-form layui-form-pane">
+            <div class="layui-form-item" id="select_content">
+
+            </div>
+
+        </div>
+    </div>
+{% endblock content %}
+{% block js %}
+    <script>
+        // 增加左边下拉框选中状态
+        var targe = decodeURIComponent(document.location.href.split('=')[1]);
+        $('dd a').each(function (i, dom) {
+            if (dom.text == targe) {
+                $(dom).addClass('layui-this');
+            }
+        });
+        $('#config_tag').addClass('layui-this');
+        // 页面内容增加选项框
+        if ("腾讯广点通" == targe) {
+            $('#select_content').html(`
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">账户名</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_id" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">账户id</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_account_id" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">access_token</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_access_token" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">refresh_token</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_refresh_token" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">公众号</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_public" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">简码</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_public_id" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">APPID</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_APPID" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">回传方式</label><div class="layui-form layui-input-inline" lay-filter="order_div" style="border: 1px solid #808080;width: 400px;" ><select name="interest" id="parm_order" lay-filter="order"><option value=""selected=""></option><option value="表单预约">表单预约</option><option value="新版转化归因回传">新版转化归因回传</option></select></div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">数据源id</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_setid" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label" style="padding: 8px 0px;">备注</label>
+                    <div class="layui-input-inline" style="border: 1px solid #808080;width: 400px;">
+                        <input type="text" id="parm_remark" autocomplete="off" class="layui-input"/>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <button class="layui-btn" style="background-color: gray;margin-left: 0px;width: 110px;"
+                            id="choose_none">请填写↑
+                    </button>
+                    <button class="layui-btn layui-hide" id="upload_parm" type="submit"
+                            style="margin-left: 0px;width: 110px;">提交
+                    </button>
+                    <button class="layui-btn layui-hide" id="upload_reset" onclick="history.go(0);"
+                            style="margin-left: 0px;width: 110px;">重置
+                    </button>
+                </div>
+                <div class="layui-form-item">
+                    <textarea class="layui-hide" readonly="readonly" id="text_area"></textarea>
+
+                </div>`);
+            var form = layui.form;
+            form.render('select', 'order_div');
+            $('.layui-body')[0].onmouseover = function () {
+                if ($('#parm_id')[0].value == '' || $('#parm_account_id')[0].value == '' || $('#parm_access_token')[0].value == '' || $('#parm_refresh_token')[0].value == '' || $('#parm_order')[0].value == '') {
+                    $("#choose_none").removeClass('layui-hide');
+                    $("#upload_parm").addClass('layui-hide');
+                } else {
+                    $("#upload_parm").removeClass('layui-hide');
+                    $("#upload_reset").removeClass('layui-hide');
+                    $("#choose_none").addClass('layui-hide');
+                }
+            };
+        }
+        $('#upload_parm').click(function () {
+            var targe = decodeURIComponent(document.location.href.split('=')[1]);
+            var formData = {
+                "id": $('#parm_id')[0].value,
+                "account_id": $('#parm_account_id')[0].value,
+                "access_token": $('#parm_access_token')[0].value,
+                "refresh_token": $('#parm_refresh_token')[0].value,
+                "APPID": $('#parm_APPID')[0].value,
+                "remark": $('#parm_remark')[0].value,
+                "parm_public": $('#parm_public')[0].value,
+                "parm_public_id": $('#parm_public_id')[0].value,
+                "parm_setid": $('#parm_setid')[0].value,
+                "parm_order": $('#parm_order')[0].value,
+                "Name": targe
+            };
+            $.ajax({
+                url: "/config/",
+                type: "POST",
+                async: true,
+                data: formData,
+                {# beforeSend: function () { #}
+                {#    $('#text_area').removeClass('layui-hide').attr('style', 'width: 500px;height: 140px;background-color: #f2f2f2;text-align: center;line-height: 140px;').html('提交中');#}
+                {#    $("#upload_parm").attr('disabled', 'disabled');#}
+                {#    $("#upload_parm")[0].style.backgroundColor = 'gray';#}
+                {# }, #}
+                success: function (res) {
+                    {#res = JSON.parse(res)#}
+                    {#console.log(res);#}
+                    if (res["code"] == 1) {
+                        $("#upload_parm").attr('disabled', 'disabled');
+                        $("#upload_parm")[0].style.backgroundColor = 'gray';
+                        $('#text_area').removeClass('layui-hide').attr('style', 'width: 500px;height: 140px;');
+                        $('#text_area').html(res['res']);
+                        {#$("#result_download")[0].innerHTML = "------导出成功，请点击下载，前面出现弹窗即可下载，限制导出数据量5000------";#}
+                        {#alert("------请点击下载按钮下载------")#}
+                        {#var url_path = res['urlPath'];#}
+                        {#$("#download_file").attr("href", url_path);#}
+                        {#$("#download_file").parent().removeClass('layui-hide');#}
+                        $("#upload_reset").removeClass('layui-hide');
+                    } else {
+                        $('#text_area').attr('style', 'width: 500px;height: 140px;background-color: #f2f2f2;text-align: center;line-height: 140px;');
+                        $('#text_area').html('查询有误');
+                        $("#upload_reset").removeClass('layui-hide');
+                    }
+
+                }
+            })
+        });
+    </script>
+{% endblock js %}

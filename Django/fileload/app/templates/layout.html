@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>文件处理系统</title>
+    <link rel="stylesheet" href="{% static 'plugins/layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    {% block css %}{% endblock %}
+    {#    <link rel="stylesheet" href="{% static 'plugins/bootstrap-3.4.1/css/bootstrap.min.css' %}">#}
+
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo layui-hide-xs layui-bg-black" id="top_logo" onclick="document.location.href='/top/'">
+            文件处理系统
+        </div>
+        <!-- 头部区域（可配合layui 已有的水平导航） -->
+        <ul class="layui-nav layui-layout-left">
+            <!-- 移动端显示 -->
+            <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-header-event="menuLeft">
+                <i class="layui-icon layui-icon-spread-left"></i>
+            </li>
+            {% if "上传" in request.session.power %}
+                <li class="layui-nav-item layui-hide-xs" id="upload_tag"><a style='cursor: pointer'
+                                                                            href="/upload/list/">文件上传</a></li>
+            {% endif %}
+            {% if "导出" in request.session.power %}
+                <li class="layui-nav-item" id="download_tag">
+                    <a style='cursor: pointer' href="/download/list/?k=''">文件导出</a>
+                </li>
+            {% endif %}
+            {% if "配置" in request.session.power %}
+                <li class="layui-nav-item" id="config_tag">
+                    <a style='cursor: pointer' href="/config/?k=''">配置参数</a>
+                </li>
+            {% endif %}
+            {% if "用户权限管理" in request.session.power %}
+                <li class="layui-nav-item layui-hide-xs" id="empower"><a style='cursor: pointer' href="/people/list/">用户管理</a>
+                </li>
+            {% endif %}
+        </ul>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item layui-hide layui-show-md-inline-block">
+                <a href="javascript:;">
+                    <img src="{% static 'images/peoplelogo.webp' %}"
+                         class="layui-nav-img">
+                    {#                    退出登录#}
+                </a>
+                {#                <dl class="layui-nav-child">#}
+                {#                    <dd><a href="/login/">登录</a></dd>#}
+                {#                    <dd><a href="/logout/">退出登录</a></dd>#}
+                {#                </dl>#}
+            </li>
+            {% if request.session.token %}
+                <li class="layui-nav-item layui-hide-xs" style="cursor: pointer"
+                    id="userId">{{ request.session.user_name }}</li>
+            {% else %}
+                <li class="layui-nav-item layui-hide-xs">请点击右侧登录>>></li>
+            {% endif %}
+            {% if request.session.token %}
+                <li class="layui-nav-item layui-hide layui-show-md-inline-block">
+                    <a href="/logout/">退出登录</a>
+                </li>
+            {% else %}
+                <li class="layui-nav-item layui-hide layui-show-md-inline-block">
+                    <a href="/logout/">登录</a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+
+
+</div>
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-body">
+        {% if request.session.token %}
+            {% block content %}{% endblock content %}
+        {% endif %}
+    </div>
+</div>
+<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script src="{% static 'plugins/layui/layui.js' %}" charset="utf-8"></script>
+{#<script src="{% static 'js/upload.js' %}" charset="utf-8"></script>#}
+{#<script src="{% static 'plugins/bootstrap-3.4.1/js/bootstrap.min.js' %}"></script>#}
+{% block js %}{% endblock js %}
+<script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    var csrftoken = getCookie('csrftoken');
+
+    // function csrfSafeMethod(method) {
+    //     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    // }
+
+    $.ajaxSetup({
+        beforeSend: function (xhr, settings) {   //这部分也可以写在$.ajax里面
+            if (!this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
+
+</script>
+</body>
+</html>

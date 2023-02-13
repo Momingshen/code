@@ -1,0 +1,33 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.center_div {
+    position: fixed;
+    top: 180px;
+    left: 400px;
+    right: 0;
+}
+
+/*.left_div {*/
+/*    position: fixed;*/
+/*    top: 180px;*/
+/*    width: 386px;*/
+/*    float: left;*/
+/*}*/
+
+.result_code {
+    position: fixed;
+    top: 100px;
+    color: #1e9fff;
+    font-size: 30px;
+    text-align: center;
+    width: 100%;
+    /*left: 480px;*/
+}
+
+.table_span {
+    padding: 25px;
+}
+

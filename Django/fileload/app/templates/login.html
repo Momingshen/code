@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>文件处理系统</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class="container">
+    <div class="box"></div>
+    <div class="container-forms">
+        <div class="container-info">
+            <div class="info-item">
+                <div class="table">
+                    <div class="table-cell">
+                        <p>已经有账号了？ </p>
+                        <div class="btn">登录</div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-item">
+                <div class="table">
+                    <div class="table-cell">
+                        <p>还没有账号？ </p>
+                        <div class="btn">注册</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-form">
+            <div class="form-item log-in">
+                <div class="table">
+                    <div class="table-cell">
+                        <input placeholder="用户名" type="text" name="user" id="userid"/>
+                        <input placeholder="密码" type="Password" name="pwd" id="pwdid"/>
+                        <div class="btn" id="btn_login">登录</div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-item sign-up">
+
+
+                <div class="table">
+                    <div class="table-cell">
+                        <input name="username" placeholder="用户名" type="text" id="usersignid"/>
+                        <input name="password" placeholder="密码" type="Password" id="pwdsignid"/>
+                        {#                        <input name="department" placeholder="部门" type="text" id="dpsignid"/>#}
+
+                        <select name="department" class="div_input" style="width: 254px;color: #757575;" id="dpsignid">
+                            <option value="" selected="">部门</option>
+                            <option value="销售部">销售部</option>
+                            <option value="流量中心">流量中心</option>
+                            <option value="技术中心">技术中心</option>
+                            <option value="在线部">在线部</option>
+                            <option value="教务部">教务部</option>
+                            <option value="薪酬部">薪酬部</option>
+                            <option value="财务部">财务部</option>
+                        </select>
+
+
+                        <input name="realName" placeholder="真实姓名" type="text" id="rnsignid"/>
+                        <div class="btn" id="btn_sign">注册</div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src='{% static 'js/jquery.min.js' %}'></script>
+<script type="text/javascript">
+    $(".info-item .btn").click(function () {
+        $(".container").toggleClass("log-in")
+    });
+</script>
+
+</body>
+</html>
+
+{% block js %}
+    <script>
+        $(function () {
+            $('#btn_login').click(login);
+            $('#btn_sign').click(sign);
+
+            $('#pwdid').keydown(function (e) {
+                if (e.keyCode == 13) {	// keyCode=13是回车键
+                    login();
+                }
+            });
+
+
+        })
+
+        function login() {
+            var formData = new FormData();
+            formData.append("user", $('#userid')[0].value)
+            formData.append("pwd", $('#pwdid')[0].value)
+            $.ajax({
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                url: '/login/',
+                dataType: 'json',
+                type: 'POST',
+                async: false,
+                data: formData,
+                processData: false, // 使数据不做处理
+                contentType: false, // 不要设置Content-Type请求头
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == 1) {
+                        window.location.href = "/top/";
+                    }
+                    if (res.code == 2) {
+                        alert('请通知BI组授权')
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('用户名或密码错误')
+                }
+            });
+        }
+
+        function sign() {
+            var username = $('#usersignid')[0].value;
+            var password = $('#pwdsignid')[0].value;
+            var department = $('#dpsignid')[0].value;
+            var realName = $('#rnsignid')[0].value;
+
+            if (username == "" || username.length < 6) {
+                alert('用户名不能为空，长度要6位以上')
+                return false
+            }
+            var reg_ps = /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$)([^\u4e00-\u9fa5\s]){6,20}$/;
+            if (!reg_ps.test(password)) {
+                alert('密码请输入6-20位英文字母、数字或者符号（除空格），且字母、数字和标点符号至少包含两种')
+                return false
+            }
+            if (department == "") {
+                alert('部门不能为空')
+                return false
+            }
+            var reg_name = /^[\u4e00-\u9fa5]{2,4}$/
+            if (realName == "" || !reg_name.test(realName)) {
+                alert('真实姓名不能为空，中文长度要2位以上')
+                return false
+            }
+            var formData = new FormData();
+            formData.append("username", username);
+            formData.append("password", password);
+            formData.append("department", department);
+            formData.append("realName", realName);
+            $.ajax({
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                url: '/login/',
+                dataType: 'json',
+                type: 'POST',
+                async: false,
+                data: formData,
+                processData: false, // 使数据不做处理
+                contentType: false, // 不要设置Content-Type请求头
+                success: function (res) {
+                    console.log(res);
+                    if (res.code == 1) {
+                        alert('注册账户成功，请通知BI组授权')
+                        window.location.href = "/login/";
+                    }
+                    if (res.code == 3) {
+                        alert('已存在用户');
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert('注册出现错误')
+                }
+            });
+        }
+
+    </script>
+
+
+{% endblock js %}

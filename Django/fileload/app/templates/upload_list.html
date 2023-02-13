@@ -1,0 +1,297 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block css %}
+{% endblock css %}
+{% block content %}
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">进线数据相关</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#项目页分析" onclick="show_content(0)">项目页分析</a></dd>
+                        <dd><a href="#接线分析" onclick="show_content(0)">接线分析</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">出勤相关</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#自考到课" onclick="show_content(0)">自考到课</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">财务相关</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#度小满贷款" onclick="show_content(0)">度小满贷款</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;">消费相关</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="#3D时控" onclick="show_content(1)">3D时控</a></dd>
+                        <dd><a href="#3D创意" onclick="show_content(2)">3D创意</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="center_div">
+        <form class="layui-form" id="select_channel" style="display: none">
+            <div class="layui-form-item">
+                <label style="font-size: 16px;">选择渠道</label>
+                <div class="layui-inline"></div>
+                <div class="layui-inline">
+                    <select lay-filter="channel" id="channel">
+                    </select>
+                </div>
+            </div>
+
+        </form>
+        <div class="layui-form-item" id="select_file" style="display: none">
+            <label style="font-size: 16px;">选择文件&nbsp;&nbsp;</label>
+            <button class="layui-btn" style="display: inline-block;background-color: gray;"
+                    id="choose_none">请选择类型↑
+            </button>
+            <button type="file" class="layui-btn" id="fileList" name="excel"
+                    style="display: none;">点击此处
+            </button>
+        </div>
+
+
+        <div class="layui-upload-list layui-hide" id="upload_main"
+             style="display: block;position: absolute;height: 600px;overflow: auto;width: 100%;">
+            <table class="layui-table">
+                <thead>
+                <tr>
+                    <th><input type="checkbox" id="all_checkbox"></th>
+                    <th>文件名</th>
+                    <th>大小</th>
+                    <th>状态</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody id="filebodyList"></tbody>
+            </table>
+            <div class="layui-form-item">
+                <button type="button" class="layui-btn" id="fileListAction">批量上传</button>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="result_code" id="result"></div>
+{% endblock content %}
+
+{% block js %}
+
+    <script>
+
+        var $ = layui.jquery
+            , upload = layui.upload
+            , form = layui.form
+            , element = layui.element;
+        //文件上传
+        var uploadListIns = upload.render({
+            elem: '#fileList'
+            , elemList: $('#filebodyList') //列表元素对象
+            , url: '/upload/list/' //此处用的是第三方的 http 请求演示，实际使用时改成您自己的上传接口即可。
+            , accept: 'file'
+            , multiple: true
+            , data: {
+                item: function () {
+                    return decodeURIComponent(document.location.href.split('#')[1])
+                },
+                channel: function () {
+                    return $('#channel').val()
+                }
+            }
+            , number: 99
+            , auto: false
+            {#, bindAction: '#fileListAction'#}
+            , choose: function (obj) {
+
+                var that = this;
+                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                //读取本地文件
+                obj.preview(function (index, file, result) {
+                    var tr = $(['<tr id="upload-' + index + '">'
+                        , '<td><input type="checkbox" lay-filter="checkbox-' + index + '"></td>'
+                        , '<td>' + file.name + '</td>'
+                        , '<td>' + (file.size / 1014).toFixed(1) + 'kb</td>'
+                        , '<td><div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-black"></span>&nbsp;未开始</div></td>'
+                        , '<td><div lay-filter="notes-' + index + '"></div><span class="layui-badge-rim">待上传</span></td>'
+                        , '<td>'
+                        , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        , '<button class="layui-btn layui-btn-xs demo-reload" lay-filter="button-' + index + '">上传</button>'
+                        , '</td>'
+                        , '</tr>'].join(''));
+
+                    //单个重传
+                    tr.find('.demo-reload').on('click', function () {
+
+                        obj.upload(index, file);
+
+                    });
+
+                    //删除
+                    tr.find('.demo-delete').on('click', function () {
+                        delete files[index]; //删除对应的文件
+                        tr.remove();
+                        uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                    });
+
+                    that.elemList.append(tr);
+                    element.render(tr); //渲染新加的进度条组件
+
+                })
+            }
+            , done: function (res, index, upload) { //成功的回调
+                var that = this;
+                if (res['code'] == 1) {
+                    var tr = that.elemList.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    console.log(res['result_code']);
+                    if (res['result_code'] == "") {
+                        tds.eq(3).html('<div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-red"></span>&nbsp;失败</div>'); //状态失败
+                        tds.eq(4).html('<div lay-filter="notes-' + index + '"></div><span class="layui-badge-rim">文件不符</span>'); //备注文件不符
+                        {#$("#result")[0].innerHTML = "请上传正确的文件格式";#}
+                    } else if (res['result_code'].indexOf('清洗成功') > -1) {
+                        tds.eq(3).html('<div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-green"></span>&nbsp;成功</div>'); //状态成功
+                        tds.eq(4).html('<div lay-filter="notes-' + index + '"></div><span class="layui-badge-rim">上传成功</span>'); //备注上传成功
+
+                        {#$("#result")[0].innerHTML = "上传成功------->" + res['result_code'];#}
+                    }
+                    else if(res['result_code'].indexOf('日期') >-1) {
+                        tds.eq(3).html('<div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-red"></span>&nbsp;失败</div>'); //状态失败
+                        tds.eq(4).html('<div lay-filter="notes-' + index + '"></div><span class="layui-badge-rim">渠道不符</span>'); //备注渠道不符
+                    }
+                    else {
+                        tds.eq(3).html('<div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-red"></span>&nbsp;失败</div>'); //状态失败
+                        tds.eq(4).html('<div lay-filter="notes-' + index + '"></div><span class="layui-badge-rim">字段异常</span>'); //备注脚本出错
+                        {#$("#result")[0].innerHTML = "报错信息------->" + res['result_code'];#}
+                    }
+                    delete this.files[index]; //删除文件队列已经上传成功的文件
+                    tds.eq(5).find('.demo-reload').removeAttr('lay-filter').addClass('layui-hide');
+                    return;
+                } else {
+                    this.error(index, upload);
+                }
+
+            }
+            , allDone: function (obj) { //多文件上传完毕后的状态回调
+                var checkboxs = $("input[type='checkbox']");
+                for (i = 0; i < checkboxs.length; i++) {
+                    checkboxs[i].checked = false;
+                }
+            }
+            , error: function (index, upload) { //错误回调
+                var that = this;
+                var tr = that.elemList.find('tr#upload-' + index)
+                    , tds = tr.children();
+                tds.eq(3).html('<div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-red"></span>&nbsp;失败</div>'); //状态失败
+                tds.eq(4).html('<div lay-filter="notes-' + index + '"></div><span class="layui-badge-rim">网络拥堵</span>'); //备注不是文件
+                tds.eq(3).find('.demo-reload').addClass('layui-hide'); //显示重传
+            }
+            , before: function (obj) {
+                var that = this;
+                var checkboxs = $("input[type='checkbox']");
+                for (i = 0; i < checkboxs.length; i++) {
+                    if (checkboxs[i].getAttribute("id") != "all_checkbox") {
+                        if (checkboxs[i].checked == true) {
+                            var index = checkboxs[i].getAttribute("lay-filter").replace('checkbox-', '');
+                            var tr = that.elemList.find('tr#upload-' + index)
+                                , tds = tr.children();
+                            tds.eq(3).html('<div lay-filter="status-' + index + '"><span class="layui-badge-dot layui-bg-blue"></span>&nbsp;进行中（勿关闭页面）</div>'); //状态成功
+                            tds.eq(4).html('<div lay-filter="notes-' + index + '"></div>'); //备注脚本出错
+                        }
+                    }
+                }
+            }
+        });
+        form.on('select(channel)', function (data) {
+            if (data.value == '') {
+                $("#choose_none").attr("style", "display: inline-block;");
+                $("#fileList").attr("style", "display: none;");
+                $("#upload_main").addClass('layui-hide');
+            } else {
+                $("#choose_none").attr("style", "display: none;");
+                $("#fileList").attr("style", "display: inline-block;");
+                $("#upload_main").removeClass('layui-hide');
+            }
+        });
+        $("#all_checkbox").click(
+            () => {
+                var checkboxs = $("input[type='checkbox']");
+                for (i = 1; i < checkboxs.length; i++) {
+                    var id = 'status-' + checkboxs[i].getAttribute("lay-filter").replace('checkbox-', '');
+                    var id_div = "div[lay-filter='" + id + "']";
+                    if ($(id_div).text().search("未开始") > -1) {
+                        if ($("#all_checkbox").prop('checked') == false) {
+                            checkboxs[i].checked = false;
+                        } else {
+                            checkboxs[i].checked = true;
+                        }
+                    } else {
+                        checkboxs[i].checked = false;
+                    }
+                }
+            }
+        );
+
+        $('#fileListAction').click(
+            () => {
+                var checkboxs = $("input[type='checkbox']");
+                var i = 1;
+                click_div();
+
+                function click_div() {
+                    if (i < checkboxs.length) {
+                        var button = 'button-' + checkboxs[i].getAttribute("lay-filter").replace('checkbox-', '');
+                        var button_div = "button[lay-filter='" + button + "']";
+                        if (checkboxs[i].checked == true) {
+                            $(button_div).click();
+                        }
+                        i++;
+                        click_div();
+                    }
+                }
+            }
+        );
+
+        function show_content(targe) {
+            if (targe == 1) {
+                $('#filebodyList').html('');
+                $("#select_channel").attr("style", "display: block;");
+                $("#channel").html('<option value=""selected=""></option><option value="快看漫画">快看漫画</option><option value="哔哩哔哩">哔哩哔哩</option><option value="网易云音乐">网易云音乐</option><option value="虎牙">虎牙</option><option value="有道智选">有道智选</option><option value="新浪微博">新浪微博</option><option value="今日头条">今日头条</option><option value="广点通">广点通</option><option value="微信">微信</option><option value="soul">soul</option><option value="小红书">小红书</option><option value="喜马拉雅">喜马拉雅</option><option value="知乎">知乎</option><option value="网易易效">网易易效</option>');
+                $("#select_file").attr("style", "display: block;");
+                $("#choose_none").attr("style", "display: inline-block;background-color: gray;");
+                $("#fileList").attr("style", "display: none;");
+                $("#upload_main").addClass('layui-hide');
+            } else if (targe == 2) {
+                $('#filebodyList').html('');
+                $("#select_channel").attr("style", "display: block;");
+                $("#channel").html('<option value=""selected=""></option><option value="快看漫画">快看漫画</option>');
+                $("#select_file").attr("style", "display: block;");
+                $("#choose_none").attr("style", "display: inline-block;background-color: gray;");
+                $("#fileList").attr("style", "display: none;");
+                $("#upload_main").addClass('layui-hide');
+            } else {
+                $('#filebodyList').html('');
+                $("#select_channel").attr("style", "display: none;");
+                $("#select_file").attr("style", "display: block;");
+                $("#choose_none").attr("style", "display: none;");
+                $("#fileList").attr("style", "display: inline-block;");
+                $("#upload_main").removeClass('layui-hide');
+            }
+            form.render('select');
+        }
+
+        {#$('#top_logo').html('文件上传');#}
+        $('#upload_tag').addClass('layui-this');
+    </script>
+{% endblock js %}
+
+

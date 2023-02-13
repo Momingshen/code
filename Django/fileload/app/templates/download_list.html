@@ -1,0 +1,171 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block css %}
+{% endblock css %}
+{% block content %}
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                {% if "流量成本" in request.session.power %}
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;">流量成本</a>
+                        <dl class="layui-nav-child">
+                            {% if "自考流量成本" in request.session.power %}
+                                <dd><a href="/download/list/?k=自考流量成本">自考流量成本</a></dd>
+                            {% endif %}
+                            {% if "中教流量成本" in request.session.power %}
+                                <dd><a href="/download/list/?k=中教流量成本">中教流量成本</a></dd>
+                            {% endif %}
+                        </dl>
+                    </li>
+                {% endif %}
+                {% if "流水表" in request.session.power %}
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;">流水相关</a>
+                        <dl class="layui-nav-child">
+                            {% if "自考流水表" in request.session.power %}
+                                <dd><a href="/download/list/?k=自考流水表">自考流水表</a></dd>
+                            {% endif %}
+                            {% if "中教流水表" in request.session.power %}
+                                <dd><a href="/download/list/?k=中教流水表">中教流水表</a></dd>
+                            {% endif %}
+                        </dl>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+    <div class="center_div">
+        <div class="layui-form layui-form-pane">
+            <div class="layui-form-item" id="select_content"></div>
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="padding: 8px 0px;">开始时间</label>
+                <div class="layui-input-inline"  style="border: 1px solid #808080;">
+                    <input type="text" name="date" id="date_start" autocomplete="off" class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="padding: 8px 0px;">结束时间</label>
+                <div class="layui-input-inline"  style="border: 1px solid #808080;">
+                    <input type="text" name="date" id="date_end" autocomplete="off" class="layui-input"/>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <button class="layui-btn" style="background-color: gray;margin-left: 0px;width: 110px;"
+                        id="choose_none">请选择↑
+                </button>
+                <button class="layui-btn layui-hide" id="export_file" type="submit"
+                        style="margin-left: 0px;width: 110px;">查询
+                </button>
+                <button class="layui-btn layui-hide" id="export_reset" onclick="history.go(0);"
+                        style="margin-left: 0px;width: 110px;">重置
+                </button>
+            </div>
+            <div class="layui-form-item">
+                <textarea class="layui-hide" readonly="readonly" id="text_area"></textarea>
+
+            </div>
+            <div class="layui-form-item">
+                <button class="layui-btn layui-hide"><a style="color: #fff;" id="download_file"
+                                                        download>下载</a></button>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+{% block js %}
+    <script>
+        $(function () {
+            //文件下载
+            var laydate = layui.laydate;
+            var form = layui.form;
+
+            //日期
+            laydate.render({
+                elem: '#date_start,#date_end'
+            });
+            form.render('select', 'city');
+            $('#export_file').click(function () {
+                var targe = decodeURIComponent(document.location.href.split('=')[1]);
+                var formData = {
+                    "uid": $('#userId').text(),
+                    "war": $('#war')[0].value,
+                    "dateStart": $('#date_start')[0].value,
+                    "dateEnd": $('#date_end')[0].value,
+                    "tableName": targe
+                };
+                $.ajax({
+                    url: "/download/mysql/",
+                    type: "GET",
+                    async: true,
+                    data: formData,
+                    beforeSend: function () {
+                        $('#text_area').removeClass('layui-hide').attr('style', 'width: 500px;height: 140px;background-color: #f2f2f2;text-align: center;line-height: 140px;').html('查询中');
+                        $("#export_file").attr('disabled', 'disabled');
+                        $("#export_file")[0].style.backgroundColor = 'gray';
+                    },
+                    success: function (res) {
+                        res = JSON.parse(res)
+                        {#console.log(res);#}
+                        if (res["code"] == 1) {
+                            $('#text_area').attr('style', 'width: 500px;height: 140px;');
+                            $('#text_area').html(res['res']);
+                            {#$("#result_download")[0].innerHTML = "------导出成功，请点击下载，前面出现弹窗即可下载，限制导出数据量5000------";#}
+                            {#alert("------请点击下载按钮下载------")#}
+                            var url_path = res['urlPath'];
+                            $("#download_file").attr("href", url_path);
+                            $("#download_file").parent().removeClass('layui-hide');
+                            $("#export_reset").removeClass('layui-hide');
+                        } else {
+                            $('#text_area').attr('style', 'width: 500px;height: 140px;background-color: #f2f2f2;text-align: center;line-height: 140px;');
+                            $('#text_area').html('查询有误');
+                            $("#export_reset").removeClass('layui-hide');
+                        }
+
+                    }
+                })
+            });
+            // 增加左边下拉框选中状态
+            var targe = decodeURIComponent(document.location.href.split('=')[1]);
+            $('dd a').each(function (i, dom) {
+                if (dom.text == targe) {
+                    $(dom).addClass('layui-this');
+                }
+            });
+            // 页面内容增加选项框
+            if ("中教流水表" == targe) {
+                $('#select_content').html('<label class="layui-form-label">选择项目</label><div class="layui-form layui-input-inline" lay-filter="city_div" style="border: 1px solid #808080;"><select name="interest" id="war" lay-filter="city"><option value="" selected=""></option> <option value="原画">原画</option><option value="建模">建模</option> <option value="影视">影视</option><option value="播音">播音</option> <option value="营销小课程">营销小课程</option><option value="全部">全部</option> </select></div>');
+            } else if ("自考流水表" == targe) {
+                $('#select_content').html('<label class="layui-form-label">选择战区</label> <div class="layui-form layui-input-inline" lay-filter="city_div" style="border: 1px solid #808080;" ><select name="interest"  id="war" lay-filter="city"> <option value="" selected=""></option><option value="广州">广州</option><option value="武汉">武汉</option><option value="成都">成都</option> <option value="全部">全部</option></select></div>');
+            } else if ("中教流量成本" == targe) {
+                $('#select_content').html('<label class="layui-form-label">选择项目</label><div class="layui-form layui-input-inline" lay-filter="city_div" style="border: 1px solid #808080;"><select name="interest" id="war" lay-filter="city"><option value="" selected=""></option><option value="3D建模">3D建模</option><option value="原画设计">原画设计</option><option value="影视后期">影视后期</option><option value="播音配音">播音配音</option><option value="全部">全部</option></select></div>');
+            } else if ("自考流量成本" == targe) {
+                $('#select_content').html('<label class="layui-form-label">选择战区</label><div class="layui-form layui-input-inline" lay-filter="city_div" style="border: 1px solid #808080;" ><select name="interest" id="war" lay-filter="city"><option value=""selected=""></option><option value="广州">广州</option><option value="武汉">武汉</option><option value="成都">成都</option><option value="全部">全部</option></select></div>');
+            } else {
+                $('.center_div').html('');
+            }
+            form.render('select', 'city_div');
+            // 选择选项和时间后展示内容
+            {#form.on('select(city)', function (data) {#}
+            {#    if (data.value == '' || $('#date_start')[0].value == '' || $('#date_end')[0].value == '') {#}
+            {#        $("#choose_none").removeClass('layui-hide');#}
+            {#        $("#export_file").addClass('layui-hide');#}
+            {#    } else {#}
+            {#        $("#export_file").removeClass('layui-hide');#}
+            {#        $("#choose_none").addClass('layui-hide');#}
+            {#    }#}
+            {# }); #}
+            $('.layui-body')[0].onmouseover = function () {
+                if ($('#date_start')[0].value == '' || $('#date_end')[0].value == '' || $('#war')[0].value == '') {
+                    $("#choose_none").removeClass('layui-hide');
+                    $("#export_file").addClass('layui-hide');
+                } else {
+                    $("#export_file").removeClass('layui-hide');
+                    $("#choose_none").addClass('layui-hide');
+                }
+            };
+        })
+        {#$('#top_logo').html('文件导出');#}
+        $('#download_tag').addClass('layui-this');
+    </script>
+{% endblock js %}
