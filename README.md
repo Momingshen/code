@@ -222,11 +222,23 @@ screen -X -S id/name quit
 
 ### 2.文件目录
 
-1.pwd：显示当前工作目录的绝对路径
+1.pwd：显示当前工作目录的绝对路径；pwd -P 显示原始路径；
 
 2.cd：cd .. 上一级，cd - 切换为上一个目前
 
-3.ls：列出当前目录，ls -l 列出详细的每一行文件信息 == ll 命令
+3.ls：列出当前目录，ls -l 列出详细的每一行文件信息 == ll 命令；ls -i 查看索引号
+
+4.echo：-e 支持反斜杠控制的字符转换
+
+5.重定向：> 写入覆盖到文件；>> 追加到文件；
+
+6.查看头部指定行数内容：head -n 10 xxx.txt；
+
+​	查看尾部指定行数内容：tail -n 10 xxx.txt；
+
+​	查看尾部更新指定行数内容：tail -f 10 xxx.txt  ；ctrl+s 暂停；
+
+7.ln 软连接：创建 ln -s 原文件 软连接名 ；删除 rm -rf 软连接名；
 
 # 二、jiacrontab
 
@@ -2631,3 +2643,98 @@ HDFS的使用场景：适合一次写入，多次读出的场景。一个文件�
 MapReduce是一个分布式运算程序的编程框架，是用户开发“基于Hadoop的数据分析应用”的核心框架。
 
 MapReduce核心功能是将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，并发运行在一个Hadoop集群上。
+
+# 十四、算法
+
+## 1.反转链表
+
+```python
+# class ListNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.next = None
+#
+# 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可
+#
+# 
+# @param head ListNode类 
+# @return ListNode类
+#
+
+class Solution:
+    def ReverseList(self , head: ListNode) -> ListNode:
+        # write code here
+        #   1.栈
+        # if head is None:
+        #     return head
+        # stack_list = []
+        # #   把链表节点全部摘掉放到栈中
+        # while head:
+        #     stack_list.append(head)
+        #     head = head.next
+        # node = stack_list.pop()
+        # result_node = node
+        # #   栈中的结点全部出栈，然后重新连成一个新的链表
+        # while stack_list != []:
+        #     node.next = stack_list.pop()
+        #     node = node.next
+        # node.next = None
+        # return result_node
+
+        #  2.双链表
+        # new_node = None
+        # while(head != None):
+        #     temp = head.next    #   保存下一结点的链条
+        #     head.next = new_node    #   当前节点指向新链条
+        #     new_node = head     # 更新新链表的头节点
+        #     head = temp     #   继续遍历剩下的链条
+        # return new_node
+
+        #   3.递归
+        if head == None or head.next == None:
+            return head
+        node = self.ReverseList(head.next)  #   获取最后一个节点作为头节点
+        print(node)
+        head.next.next = head   #   把当前节点的下一节点的next指向当前节点
+        head.next = None    #   把当前节点的next指向空
+        return node     #   最终实现链表反转
+```
+
+## 2.排序
+
+```python
+class Solution:
+    def MySort(self, arr: list[int]) -> list[int]:
+        # # write code here
+        # #   1.冒泡排序
+        # arr_len = len(arr)
+        # while arr_len > 1:    #每次循环把最大值放到最后
+        #     arr_len -= 1
+        #     for i in range(arr_len):
+        #         if arr[i] > arr[i + 1]:
+        #             arr[i], arr[i + 1] = arr[i + 1], arr[i]
+        #     print(arr)
+        # return arr
+
+        # #   2.快速排序
+        # def quickSort(arr, left, right):   
+        #     start_left = left   #记录第一次进入函数得到left值
+        #     start_right = right #记录第一次进入函数得到right值
+        #     if left < right:
+        #         first = arr[left]   #取第一个值为基准
+        #         while (left < right):   #把小于基准的值放左边，大于基准的值放右边
+        #             while (left < right and arr[right] >= first):
+        #                 right -= 1
+        #             arr[left], arr[right] = arr[right], arr[left]
+        #             while (left < right and arr[left] <= first):
+        #                 left += 1
+        #             arr[left], arr[right] = arr[right], arr[left]
+        #         mid = left  # 找到基准值所在的位置
+        #         quickSort(arr, start_left, mid - 1) #递归循环小于基准值到基准值的数组
+        #         quickSort(arr, mid + 1, start_right)    #递归循环基准值到大于基准值的数组
+
+        # quickSort(arr, 0, len(arr) - 1) #调用函数
+        # print(arr)
+        # return arr
+```
+
